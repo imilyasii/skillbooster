@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI SEO Title Crafter | Khan Creator Tool</title>
+    <meta name="description" content="Generate click-worthy, SEO-optimized titles for your blog posts and articles to rank higher on Google.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Reusing the Cyber-Tech theme */
+        :root {
+            --bg-color: #010409;
+            --card-bg: rgba(16, 21, 30, 0.7);
+            --border-color: rgba(67, 204, 211, 0.2);
+            --primary-text: #cdd5df;
+            --heading-text: #ffffff;
+            --accent-cyan: #00f6ff;
+            --accent-green: #32ff7e;
+            --font-main: 'Poppins', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        #grid-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* Header Styles */
+        .main-header { position: sticky; top: 0; z-index: 50; padding: 1rem 0; background: rgba(1, 4, 9, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon { width: 40px; height: 40px; color: var(--accent-cyan); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        .logo:hover .logo-icon { transform: rotate(15deg); }
+        .logo-text { font-size: 1.5rem; font-weight: 700; color: var(--heading-text); }
+        .main-nav a { position: relative; margin-left: 2rem; text-decoration: none; color: var(--primary-text); font-weight: 500; transition: color 0.3s; }
+        .main-nav a:hover { color: var(--accent-cyan); }
+        .main-nav a::after { content: ''; position: absolute; width: 100%; height: 2px; bottom: -5px; left: 0; background: var(--accent-cyan); transform: scaleX(0); transform-origin: right; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        .main-nav a:hover::after { transform: scaleX(1); transform-origin: left; }
+        
+        /* Tool Page Specific Styles */
+        .tool-wrapper { padding: 4rem 0; }
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+        .tool-header { text-align: center; margin-bottom: 2rem; }
+        .tool-header h1 { font-size: 2.8rem; font-weight: 700; color: var(--heading-text); margin-bottom: 1rem; text-shadow: 0 0 10px var(--accent-green); }
+        .tool-header p { font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--heading-text); }
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            background-color: #010409;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--primary-text);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 15px rgba(50, 255, 126, 0.2);
+        }
+
+        .generate-btn {
+            display: block; width: 100%; padding: 1rem; background: var(--accent-green); color: var(--bg-color);
+            border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s;
+        }
+        .generate-btn:hover:not(:disabled) {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
+        }
+        .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        #results-area {
+            margin-top: 2rem;
+            padding: 0.5rem;
+            background-color: #010409;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            min-height: 150px;
+        }
+        .title-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.1rem;
+            gap: 1rem;
+        }
+        .title-item:last-child {
+            border-bottom: none;
+        }
+        .copy-btn {
+            background: none;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            background: var(--accent-cyan);
+            color: var(--bg-color);
+        }
+        
+        .content-section { margin-top: 4rem; color: #dcdcdc; }
+        .content-section h2 { font-size: 2.2rem; color: var(--heading-text); margin-bottom: 1.5rem; border-left: 4px solid var(--accent-green); padding-left: 1rem; }
+        .content-section p, .content-section li { font-size: 1.1rem; margin-bottom: 1rem; line-height: 1.8; }
+        .content-section ol { list-style-position: inside; padding-left: 1rem; }
+        
+        .main-footer { margin-top: 4rem; padding: 2.5rem 0; border-top: 1px solid var(--border-color); text-align: center; }
+        .footer-nav { margin: 1rem 0; }
+        .footer-nav a { margin: 0 1rem; color: var(--primary-text); text-decoration: none; }
+        .social-icons { display: flex; justify-content: center; gap: 1.5rem; }
+        .social-icons a { color: var(--primary-text); transition: color 0.3s, transform 0.3s; }
+        .social-icons a:hover { color: var(--accent-cyan); transform: scale(1.2); }
+        .social-icons svg { width: 24px; height: 24px; }
+    </style>
+</head>
+<body>
+    <canvas id="grid-canvas"></canvas>
+
+    <header class="main-header">
+        <div class="container header-content">
+            <a href="../index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 20.5L3.5 14L10 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 3.5L20.5 10L14 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">Khan Creator Tool</span>
+            </a>
+            <nav class="main-nav">
+                <a href="../index.html">Home</a>
+                <a href="../index.html#tools">Tools</a>
+                <a href="../blog/blog.html">Blogs</a>
+                <a href="../legal/about.html">About Us</a>
+                <a href="../legal/contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tool-wrapper">
+        <section class="tool-container">
+            <header class="tool-header">
+                <h1>AI SEO Title Crafter</h1>
+                <p>Generate click-worthy, optimized titles for your blog posts to rank higher and attract more traffic.</p>
+            </header>
+
+            <div class="form-group">
+                <label for="prompt-input">What is your main keyword or blog topic?</label>
+                <input type="text" id="prompt-input" placeholder="e.g., best smartphone 2025, how to learn python">
+            </div>
+
+            <button class="generate-btn" id="generate-btn">Craft Titles</button>
+
+            <div class="form-group" style="margin-top: 2rem;">
+                <label for="result-area">AI Generated SEO Titles:</label>
+                <div id="results-area">
+                    <p style="padding: 1rem; opacity: 0.7;">Your SEO titles will appear here...</p>
+                </div>
+            </div>
+        </section>
+        
+        <article class="content-section">
+            <h2>About the AI SEO Title Crafter</h2>
+            <p>
+                Your blog post's title is the most important element for Search Engine Optimization (SEO). It's what appears in Google search results and is the primary factor that entices a user to click. Our AI SEO Title Crafter is designed to help you create headlines that are not only catchy for humans but are also optimized for search engine algorithms.
+            </p>
+
+            <h2>How to Use This Tool</h2>
+            <ol>
+                <li style="margin-bottom: 0.5rem;"><strong>Enter Your Keyword:</strong> In the input box, type the main keyword or topic your blog post is about.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Click Craft Titles:</strong> Our AI will analyze your keyword and generate a list of titles that incorporate best SEO practices.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Choose and Copy:</strong> The tool will produce several title variations. Find the one you like best and click the "Copy" button next to it.</li>
+            </ol>
+        </article>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-content">
+            <nav class="footer-nav">
+                <a href="../legal/privacy-policy.html">Privacy Policy</a>
+                <a href="../legal/terms.html">Terms</a>
+                <a href="../legal/disclaimer.html">Disclaimer</a>
+                <a href="../legal/contact.html">Contact</a>
+            </nav>
+            <div class="social-icons">
+                 <a href="#" title="TikTok"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.05-4.85-.38-6.95-1.45-1.94-1-3.47-2.52-4.5-4.47-.92-1.64-1.28-3.48-1.28-5.38 0-3.53 2.8-6.33 6.33-6.33.02-.01.03-.01.05-.01.12 0 .23.01.34.02.14.01.28.01.42.02.16.01.32.01.48.01 2.8 0 5.12-2.32 5.12-5.12z"/></svg></a>
+                <a href="#" title="Instagram"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z"/></svg></a>
+                <a href="#" title="YouTube"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.56 21.94,11.16L22,12C22,12.83 21.94,13.5 21.88,14.08C21.82,14.66 21.75,15.21 21.65,15.65C21.37,16.78 20.62,17.65 19.49,17.96C18.35,18.27 15.11,18.44 12,18.44C8.88,18.44 5.64,18.27 4.5,17.96C3.37,17.65 2.62,16.78 2.34,15.65C2.25,15.21 2.18,14.66 2.12,14.08C2.06,13.5 2,12.83 2,12L2.06,11.16C2.12,10.56 2.19,9.87 2.25,9.07C2.31,8.27 2.4,7.64 2.53,7.17C2.81,6.04 3.56,5.17 4.69,4.86C5.83,4.55 9.07,4.38 12,4.38C15.11,4.38 18.35,4.55 19.5,4.86C20.63,5.17 21.38,6.04 21.56,7.17Z"/></svg></a>
+                <a href="#" title="LinkedIn"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M19,3A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3H19M18.5,18.5V13.2A3.26,3.26 0 0,0 15.24,9.94C14.39,9.94 13.4,10.43 13,11.11V10.28H10.13V18.5H13V13.07C13,12.21 13.25,11.43 14.31,11.43C15.36,11.43 15.46,12.33 15.46,13.16V18.5H18.5M6.88,8.56A1.68,1.68 0 0,0 8.56,6.88C8.56,6 8.56,5.12 6.88,5.12C5.19,5.12 5.19,6 5.19,6.88A1.68,1.68 0 0,0 6.88,8.56M8.27,18.5V10.28H5.5V18.5H8.27Z"/></svg></a>
+            </div>
+            <p style="margin-top: 1.5rem; opacity: 0.7;">&copy; 2025 Khan Creator Tool. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // JS for Background
+        const canvas = document.getElementById('grid-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        function setup(){ width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        const mouse = { x: -9999, y: -9999 };
+        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('resize', setup);
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            const gridSpacing = 40;
+            for (let x = 0; x < width; x += gridSpacing) {
+                for (let y = 0; y < height; y += gridSpacing) {
+                    const angle = Math.atan2(mouse.y - y, mouse.x - x);
+                    const distance = Math.sqrt((mouse.x - x) ** 2 + (mouse.y - y) ** 2);
+                    const opacity = Math.max(0, 1 - distance / 300);
+                    if(opacity > 0) {
+                        ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.fillStyle = "rgba(0, 246, 255, 0.5)"; ctx.globalAlpha = opacity; ctx.fillRect(0, -1, distance / 20, 2); ctx.restore();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        setup(); animate();
+
+        // JS for AI SEO Title Crafter
+        const generateBtn = document.getElementById('generate-btn');
+        const promptInput = document.getElementById('prompt-input');
+        const resultsArea = document.getElementById('results-area');
+
+        generateBtn.addEventListener('click', async () => {
+            const topic = promptInput.value.trim();
+            if (!topic) {
+                alert("Please enter your keyword or topic first!"); return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Crafting Titles...';
+            resultsArea.innerHTML = '<p style="padding: 1rem; text-align: center; opacity: 0.7;">AI is analyzing your keyword... 🧠</p>';
+
+            const finalPrompt = `Generate a list of 5 click-worthy and SEO-optimized blog post titles for the main keyword: "${topic}". The titles should be a mix of different types (e.g., listicle, how-to, question-based). Each title must be on a new line and start with a number.`;
+            
+            try {
+                const apiKey = "AIzaSyCJZjJvtt8DtvbFH-mGlH7tJFm1teZSL7Y";
+
+                let chatHistory = [{ role: "user", parts: [{ text: finalPrompt }] }];
+                const payload = { contents: chatHistory };
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0].content.parts[0].text) {
+                    const titlesText = result.candidates[0].content.parts[0].text;
+                    const titlesArray = titlesText.split('\n').filter(title => title.trim() !== '');
+                    displayTitles(titlesArray);
+                } else {
+                    throw new Error("Unexpected API response structure.");
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                resultsArea.innerHTML = `<p style="padding: 1rem; color: var(--accent-pink);">Sorry, something went wrong. Please check your API key and try again.</p>`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Craft Titles';
+            }
+        });
+
+        function displayTitles(titles) {
+            resultsArea.innerHTML = '';
+            titles.forEach(title => {
+                const item = document.createElement('div');
+                item.className = 'title-item';
+
+                const text = document.createElement('span');
+                text.textContent = title.replace(/^\d+\.\s*/, '');
+
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.textContent = 'Copy';
+                copyBtn.onclick = () => {
+                     navigator.clipboard.writeText(text.textContent).then(() => {
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
+                    });
+                };
+                
+                item.appendChild(text);
+                item.appendChild(copyBtn);
+                resultsArea.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
