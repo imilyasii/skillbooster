@@ -1,438 +1,238 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Major Creator Kit - Instagram Growth Tools</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Modern Color Scheme */
-        :root {
-            --primary: #8A2BE2;  /* Purple */
-            --secondary: #00BFFF; /* Deep Sky Blue */
-            --accent: #FF00FF;    /* Magenta */
-            --dark: #121212;
-            --light: #FFFFFF;
-            --gray: #F8F9FA;
-            --text: #2D3748;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            --radius: 16px;
-            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
+import React, { useState, useEffect } from 'react';
 
-        /* Base Styles with Animations */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+// Helper Component for Icons (Using inline SVGs for self-containment)
+const Icon = ({ name, className }) => {
+  const icons = {
+    'magic-wand': (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 4V2M15 16v-2M8 9H2M22 9h-6M12 19l-3-3 3-3 3 3-3 3zM9 4v2M3.5 5.5l1.4 1.4M19.1 5.5l-1.4 1.4"/></svg>
+    ),
+    'code-brackets': (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 20.5 3.5 14l6.5-6.5M14 3.5 20.5 10l-6.5 6.5"/></svg>
+    ),
+    'ai-prompt': (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 2v2"/><path d="M9 2v2"/></svg>
+    ),
+    'hashtag': (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="4" y2="20"/><line x1="16" x2="14" y1="4" y2="20"/></svg>
+    ),
+    'thumbnail': (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+    ),
+    'twitter': (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 1.4 3.3 4.9 3.3 4.9s-1.4-1.3-3.5-2.1c-1.3-1.1-2.8-1.5-4.3-1.5s-2.7.4-3.8 1.2c-1.1.8-2 1.9-2.2 3.2s.2 2.6.9 3.8c.7 1.2 1.8 2.1 3.1 2.5s2.7.5 4.1.1c1.4-.4 2.6-1.2 3.5-2.2s1.4-2.2 1.5-3.5c.1-1.3-.2-2.6-1-3.8s-1.9-2.1-3.2-2.5c-1.3-.4-2.7-.2-4 .4s-2.3 1.5-3.1 2.7c-.8 1.2-1.2 2.5-1.1 3.8s.5 2.5 1.4 3.5c.9 1 2.1 1.7 3.4 2s2.7.2 4-.2c1.3-.4 2.5-1.2 3.3-2.3s1.3-2.4 1.2-3.8-.5-2.6-1.4-3.6zM2 9.5C2 7.1 3.8 5.2 6.1 5.2s4.1 1.9 4.1 4.3c0 2.4-1.8 4.3-4.1 4.3S2 11.9 2 9.5z"/></svg>
+    ),
+    'github': (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/></svg>
+    ),
+    'linkedin':(
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+    )
+  };
+  return <div className={className}>{icons[name]}</div>;
+};
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--light);
-            color: var(--text);
-            line-height: 1.7;
-            overflow-x: hidden;
-        }
 
-        /* Animated Gradient Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, 
-                          rgba(138, 43, 226, 0.05) 0%, 
-                          rgba(0, 191, 255, 0.05) 50%, 
-                          rgba(255, 0, 255, 0.05) 100%);
-            z-index: -1;
-            animation: rotateGradient 20s linear infinite;
-        }
+// Main App Component
+const App = () => {
+  const navLinks = ['Tools', 'Blogs', 'About Us', 'Contact'];
+  const featuredTools = [
+    { name: 'Story Prompt Generator', icon: 'ai-prompt' },
+    { name: 'Viral Hashtag Finder', icon: 'hashtag' },
+    { name: 'AI Thumbnail Maker', icon: 'thumbnail' },
+    { name: 'Creative Title Writer', icon: 'magic-wand' },
+    { name: 'Engaging Poll Ideas', icon: 'code-brackets' },
+  ];
+  
+  // Duplicating for seamless scroll effect
+  const extendedFeaturedTools = [...featuredTools, ...featuredTools];
 
-        @keyframes rotateGradient {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+  const allTools = [
+    { name: "AI Prompt Generator", desc: "Unlock creativity with tailored prompts for any topic.", icon: "ai-prompt" },
+    { name: "Viral Hashtag Finder", desc: "Discover trending hashtags to maximize your social reach.", icon: "hashtag" },
+    { name: "Thumbnail Idea Maker", desc: "Generate eye-catching thumbnail concepts for your videos.", icon: "thumbnail" },
+    { name: "SEO Title Crafter", desc: "Write SEO-optimized titles that rank higher and get clicks.", icon: "magic-wand" },
+    { name: "Blog Idea Generator", desc: "Never run out of content ideas for your blog again.", icon: "code-brackets" },
+    { name: "Content Rewriter", desc: "Rephrase your text to make it unique, engaging, and fresh.", icon: "ai-prompt" },
+  ];
+  
+  const blogPosts = [
+      {title: "How to Go Viral on TikTok in 2025", excerpt: "Breaking down the algorithm and strategies that top creators are using right now...", image: "https://placehold.co/600x400/7c3aed/ffffff?text=TikTok"},
+      {title: "7 AI Tools That Will Revolutionize Your Workflow", excerpt: "Save time and supercharge your creativity with these must-have AI-powered tools...", image: "https://placehold.co/600x400/db2777/ffffff?text=AI+Tools"},
+      {title: "The Ultimate Guide to Writing Engaging Prompts", excerpt: "Learn the art of prompt engineering to get the best possible results from any AI model...", image: "https://placehold.co/600x400/1d4ed8/ffffff?text=Prompts"},
+  ];
 
-        /* Header with Glass Morphism Effect */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px 0;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: var(--shadow);
-            z-index: 1000;
-            transition: var(--transition);
-        }
-
-        .header-scrolled {
-            padding: 15px 0;
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Logo with Animation */
-        .logo {
-            display: flex;
-            align-items: center;
-            font-weight: 700;
-            font-size: 1.8rem;
-            color: var(--primary);
-            transition: var(--transition);
-        }
-
-        .logo i {
-            margin-right: 12px;
-            font-size: 2rem;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: pulse 2s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-
-        /* Navigation */
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-
-        nav ul li {
-            margin-left: 30px;
-            position: relative;
-        }
-
-        nav ul li a {
-            font-weight: 500;
-            position: relative;
-            padding: 8px 0;
-        }
-
-        nav ul li a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transition: var(--transition);
-        }
-
-        nav ul li a:hover::after {
-            width: 100%;
-        }
-
-        /* Hero Section with Floating Animation */
-        .hero {
-            padding: 180px 0 100px;
-            position: relative;
-        }
-
-        .hero-content {
-            max-width: 600px;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 25px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: fadeInUp 0.8s ease-out;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 35px;
-            color: #666;
-            animation: fadeInUp 0.8s ease-out 0.2s both;
-        }
-
-        /* Tool Cards with 3D Effect */
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 50px;
-        }
-
-        .tool-card {
-            background: var(--light);
-            border-radius: var(--radius);
-            padding: 35px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            transform-style: preserve-3d;
-            perspective: 1000px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: var(--transition);
-        }
-
-        .tool-card:hover {
-            transform: translateY(-10px) rotateX(5deg);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .tool-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .tool-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 25px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-            transition: var(--transition);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.3);
-        }
-
-        .tool-card:hover .tool-icon {
-            transform: rotate(15deg) scale(1.1);
-            background: linear-gradient(45deg, var(--accent), var(--primary));
-        }
-
-        /* Animated Buttons */
-        .btn {
-            display: inline-block;
-            padding: 14px 32px;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
-            z-index: 1;
-        }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, var(--secondary), var(--accent));
-            z-index: -1;
-            opacity: 0;
-            transition: var(--transition);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 191, 255, 0.4);
-        }
-
-        .btn-primary:hover::before {
-            opacity: 1;
-        }
-
-        /* Footer with Animated Pattern */
-        footer {
-            background: var(--dark);
-            color: var(--light);
-            padding: 80px 0 30px;
-            position: relative;
-            margin-top: 100px;
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%23121212" opacity=".25"/></svg>');
-            background-size: cover;
-            background-repeat: no-repeat;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .tools-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Animated Header -->
-    <header id="mainHeader">
-        <div class="container">
-            <div class="header-inner">
-                <a href="/" class="logo">
-                    <i class="fas fa-magic"></i>
-                    <span>Major Creator Kit</span>
+  const timelineEvents = [
+    { year: "2024", title: "The Idea", desc: "Khan Creator Tool was born from a simple idea: make powerful creative tools accessible to everyone." },
+    { year: "Q1 2025", title: "First Prototype", desc: "Building the core AI prompt engine and testing with a small group of creators." },
+    { year: "Q2 2025", title: "Public Launch", desc: "Launched the first version of the platform with three initial tools." },
+    { year: "Now", title: "Growing Together", desc: "Continuously adding new tools and features based on valuable user feedback." },
+  ];
+  
+  return (
+    <div className="bg-gray-900 text-gray-200 font-['Poppins']">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-gray-900/50 backdrop-blur-lg">
+        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <a href="#" className="flex items-center gap-2">
+            <Icon name="magic-wand" className="text-purple-400 w-8 h-8" />
+            <span className="text-xl font-bold text-white">Khan Creator Tool</span>
+          </a>
+          <ul className="hidden md:flex items-center space-x-8">
+            {navLinks.map(link => (
+              <li key={link}>
+                <a href="#" className="relative group text-gray-300 hover:text-white transition-colors">
+                  {link}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-400 group-hover:w-full transition-all duration-300"></span>
                 </a>
-                
-                <nav>
-                    <ul>
-                        <li><a href="#tools">Tools</a></li>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="blog.html">Blog</a></li>
-                        <li><a href="contact.html">Contact</a></li>
-                    </ul>
-                </nav>
-                
-                <button class="btn btn-primary">Get Started</button>
-            </div>
-        </div>
-    </header>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </header>
+      
+      {/* Main Content */}
+      <main>
+        {/* Hero Section */}
+        <section className="container mx-auto px-6 py-24 text-center">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-6 animate-fade-in-down">
+            <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text">
+              Supercharge Your Creativity
+            </span>
+            <br />
+            AI Tools for Writers & Creators!
+          </h1>
+          <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-12 animate-fade-in-up">
+            Unlock your full potential with our suite of free, AI-powered tools designed to help you generate ideas, write better content, and grow your audience.
+          </p>
+          
+          {/* Featured Tools Carousel */}
+          <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
+              <div className="flex animate-infinite-scroll">
+                  {extendedFeaturedTools.map((tool, index) => (
+                      <div key={index} className="flex-shrink-0 flex items-center justify-center w-64 mx-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                          <Icon name={tool.icon} className="w-6 h-6 mr-3 text-purple-400" />
+                          <span className="font-semibold">{tool.name}</span>
+                      </div>
+                  ))}
+              </div>
+          </div>
+        </section>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Boost Your Instagram Growth</h1>
-                <p>Free tools to help you create stunning profiles, find perfect hashtags, and grow your audience organically.</p>
-                <div class="hero-buttons">
-                    <a href="#tools" class="btn btn-primary pulse">Explore Tools</a>
-                    <a href="#demo" class="btn btn-outline">Watch Demo</a>
-                </div>
-            </div>
-            
-            <div class="hero-image floating">
-                <img src="assets/images/hero-illustration.png" alt="Instagram Tools">
-            </div>
-        </div>
-    </section>
-
-    <!-- Tools Section -->
-    <section id="tools" class="section">
-        <div class="container">
-            <h2 class="section-title">Our Powerful Toolkit</h2>
-            <p class="section-subtitle">Everything you need to grow on Instagram</p>
-            
-            <div class="tools-grid">
-                <!-- Tool Cards will be added here -->
-                <div class="tool-card">
-                    <div class="tool-icon">
-                        <i class="fas fa-at"></i>
+        {/* Tools Showcase Section */}
+        <section id="tools" className="container mx-auto px-6 py-20">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-12">Our Full Suite of Tools</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{perspective: '1000px'}}>
+                {allTools.map((tool, index) => (
+                    <div key={index} className="bg-gray-800 rounded-xl border border-gray-700 p-6 transform transition-all duration-500 hover:scale-105 hover:[transform:rotateY(10deg)] hover:shadow-2xl hover:shadow-purple-500/20">
+                        <div className="flex items-center mb-4">
+                            <Icon name={tool.icon} className="w-8 h-8 text-purple-400 mr-4"/>
+                            <h3 className="text-xl font-bold text-white">{tool.name}</h3>
+                        </div>
+                        <p className="text-gray-400 mb-6">{tool.desc}</p>
+                        <a href="#" className="mt-auto inline-block bg-purple-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 hover:bg-purple-700 hover:shadow-lg hover:shadow-purple-600/40">
+                            Try Now
+                        </a>
                     </div>
-                    <h3>Username Checker</h3>
-                    <p>Find available Instagram usernames instantly</p>
-                    <a href="tools/username-checker.html" class="btn btn-primary">Try Now</a>
+                ))}
+            </div>
+        </section>
+
+        {/* About Us Section */}
+        <section className="container mx-auto px-6 py-20">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-16">Our Journey</h2>
+          <div className="relative">
+            {/* The vertical line */}
+            <div className="absolute left-1/2 h-full w-0.5 bg-gray-700 -translate-x-1/2"></div>
+
+            {timelineEvents.map((event, index) => (
+              <div key={index} className={`relative flex items-center w-full mb-16 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+                <div className={`w-5/12 ${index % 2 === 0 ? 'text-right pr-8' : 'text-left pl-8'}`}>
+                  <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
+                    <p className="font-bold text-lg text-purple-400 mb-1">{event.year}</p>
+                    <h4 className="font-bold text-white text-xl mb-2">{event.title}</h4>
+                    <p className="text-gray-400">{event.desc}</p>
+                  </div>
                 </div>
-                
-                <!-- Add other tool cards similarly -->
+                {/* The dot on the timeline */}
+                <div className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-gray-900 border-4 border-purple-500 rounded-full"></div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Blogs Section */}
+        <section className="py-20 bg-gray-900/50">
+          <div className="container mx-auto px-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-12">From Our Blog</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {blogPosts.map((post, index) => (
+                <div key={index} className="bg-gray-800 rounded-xl overflow-hidden group">
+                  <img src={post.image} alt={post.title} className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-white mb-3">{post.title}</h3>
+                    <p className="text-gray-400 mb-4">{post.excerpt}</p>
+                    <a href="#" className="font-semibold text-purple-400 group-hover:text-pink-400 transition-colors flex items-center gap-2">
+                      Read More
+                      <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+                    </a>
+                  </div>
+                </div>
+              ))}
             </div>
-        </div>
-    </section>
+          </div>
+        </section>
+      </main>
 
-    <!-- Features Section -->
-    <section id="features" class="section">
-        <!-- Feature content here -->
-    </section>
+      {/* Footer */}
+      <footer className="bg-gray-800 border-t border-gray-700">
+          <div className="container mx-auto px-6 py-8">
+              <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                  <div className="mb-6 md:mb-0">
+                      <p className="text-gray-400">© 2025 Khan Creator Tool. All rights reserved.</p>
+                      <div className="mt-2">
+                          <a href="#" className="text-gray-400 hover:text-white mx-2">Privacy Policy</a>
+                          <span className="text-gray-500">|</span>
+                          <a href="#" className="text-gray-400 hover:text-white mx-2">Terms of Service</a>
+                      </div>
+                  </div>
+                  <div className="flex justify-center space-x-6">
+                      <a href="#" className="text-gray-400 hover:text-white transition-colors"><Icon name="twitter" className="w-6 h-6"/></a>
+                      <a href="#" className="text-gray-400 hover:text-white transition-colors"><Icon name="github" className="w-6 h-6"/></a>
+                      <a href="#" className="text-gray-400 hover:text-white transition-colors"><Icon name="linkedin" className="w-6 h-6"/></a>
+                  </div>
+              </div>
+          </div>
+      </footer>
+      
+      {/* You can add this to your main CSS file for animations */}
+      <style jsx global>{`
+        @keyframes fade-in-down {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down { animation: fade-in-down 0.8s ease-out forwards; }
+        .animate-fade-in-up { animation: fade-in-up 0.8s ease-out 0.2s forwards; opacity: 0; }
+        
+        @keyframes infinite-scroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .animate-infinite-scroll {
+            animation: infinite-scroll 40s linear infinite;
+        }
+        
+        // This is for the 3D hover effect
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+      `}</style>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <!-- Footer content here -->
-            </div>
-        </div>
-    </footer>
+    </div>
+  );
+}
 
-    <script>
-        // Header Scroll Effect
-        window.addEventListener('scroll', function() {
-            const header = document.getElementById('mainHeader');
-            if (window.scrollY > 50) {
-                header.classList.add('header-scrolled');
-            } else {
-                header.classList.remove('header-scrolled');
-            }
-        });
-
-        // Animation on Scroll
-        const animateOnScroll = function() {
-            const elements = document.querySelectorAll('.tool-card, .feature');
-            
-            elements.forEach(element => {
-                const elementPosition = element.getBoundingClientRect().top;
-                const screenPosition = window.innerHeight / 1.3;
-                
-                if (elementPosition < screenPosition) {
-                    element.style.opacity = '1';
-                    element.style.transform = 'translateY(0)';
-                }
-            });
-        };
-
-        // Initialize animations
-        window.addEventListener('load', function() {
-            const elements = document.querySelectorAll('.tool-card, .feature');
-            elements.forEach(element => {
-                element.style.opacity = '0';
-                element.style.transform = 'translateY(20px)';
-                element.style.transition = 'all 0.6s ease-out';
-            });
-            
-            animateOnScroll();
-        });
-
-        window.addEventListener('scroll', animateOnScroll);
-    </script>
-</body>
-</html>
+export default App;
